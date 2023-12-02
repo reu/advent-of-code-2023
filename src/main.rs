@@ -4,47 +4,73 @@ fn main() {
     println!("Part2: {}", part2(input));
 }
 
+fn parse_line(line: &str) -> Option<usize> {
+    let digits = line.chars().filter(|n| n.is_digit(10)).collect::<Vec<_>>();
+    let first_digit = digits.first()?;
+    let last_digit = digits.last()?;
+    format!("{first_digit}{last_digit}").parse::<usize>().ok()
+}
+
 fn part1(input: &str) -> usize {
-    input
-        .lines()
-        .filter_map(|line| {
-            let digits = line.chars().filter(|n| n.is_digit(10)).collect::<Vec<_>>();
-            let first_digit = digits.first()?;
-            let last_digit = digits.last()?;
-            format!("{first_digit}{last_digit}").parse::<usize>().ok()
-        })
-        .sum()
+    input.lines().filter_map(parse_line).sum()
 }
 
 fn part2(input: &str) -> usize {
     input
         .lines()
         .map(|line| {
-            line
-                .replace("oneight", "18")
-                .replace("twone", "21")
-                .replace("threeight", "38")
-                .replace("fiveight", "58")
-                .replace("eightwo", "82")
-                .replace("eighthree", "83")
-                .replace("nineight", "98")
-                .replace("one", "1")
-                .replace("two", "2")
-                .replace("three", "3")
-                .replace("four", "4")
-                .replace("five", "5")
-                .replace("six", "6")
-                .replace("seven", "7")
-                .replace("eight", "8")
-                .replace("nine", "9")
+            let iter = ElvenDigitsIterator {
+                string: line.to_string(),
+                index: 0,
+            };
+            iter.collect::<String>()
         })
-        .filter_map(|line| {
-            let digits = line.chars().filter(|n| n.is_digit(10)).collect::<Vec<_>>();
-            let first_digit = digits.first()?;
-            let last_digit = digits.last()?;
-            format!("{first_digit}{last_digit}").parse::<usize>().ok()
-        })
+        .filter_map(|line| parse_line(&line))
         .sum()
+}
+
+struct ElvenDigitsIterator {
+    string: String,
+    index: usize,
+}
+
+impl Iterator for ElvenDigitsIterator {
+    type Item = char;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        while self.index < self.string.len() {
+            let s = &self.string[self.index..self.string.len()];
+            self.index += 1;
+
+            match s.chars().next() {
+                Some(char) if char.is_digit(10) => return Some(char),
+                _ => {}
+            }
+
+            if s.starts_with("one") {
+                return Some('1');
+            } else if s.starts_with("two") {
+                return Some('2');
+            } else if s.starts_with("three") {
+                return Some('3');
+            } else if s.starts_with("four") {
+                return Some('4');
+            } else if s.starts_with("five") {
+                return Some('5');
+            } else if s.starts_with("six") {
+                return Some('6');
+            } else if s.starts_with("seven") {
+                return Some('7');
+            } else if s.starts_with("eight") {
+                return Some('8');
+            } else if s.starts_with("nine") {
+                return Some('9');
+            } else {
+                continue;
+            }
+        }
+        None
+    }
 }
 
 #[test]
@@ -68,4 +94,17 @@ fn test_part2() {
         7pqrstsixteen";
 
     assert_eq!(part2(input), 281);
+}
+
+#[test]
+fn test_iterator() {
+    let mut iter = ElvenDigitsIterator {
+        string: "eightwothree4".to_string(),
+        index: 0,
+    };
+
+    assert_eq!(iter.next(), Some('8'));
+    assert_eq!(iter.next(), Some('2'));
+    assert_eq!(iter.next(), Some('3'));
+    assert_eq!(iter.next(), Some('4'));
 }
