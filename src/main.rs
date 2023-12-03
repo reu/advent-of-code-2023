@@ -5,7 +5,10 @@ fn main() {
 }
 
 fn parse_line(line: &str) -> Option<usize> {
-    let digits = line.chars().filter(|n| n.is_digit(10)).collect::<Vec<_>>();
+    let digits = line
+        .chars()
+        .filter(|n| n.is_ascii_digit())
+        .collect::<Vec<_>>();
     let first_digit = digits.first()?;
     let last_digit = digits.last()?;
     format!("{first_digit}{last_digit}").parse::<usize>().ok()
