@@ -21,56 +21,47 @@ fn part1(input: &str) -> usize {
 fn part2(input: &str) -> usize {
     input
         .lines()
-        .map(|line| {
-            let iter = ElvenDigitsIterator {
-                string: line.to_string(),
-                index: 0,
-            };
-            iter.collect::<String>()
-        })
+        .map(|line| ElvenDigitsIterator::new(line).collect::<String>())
         .filter_map(|line| parse_line(&line))
         .sum()
 }
 
 struct ElvenDigitsIterator {
-    string: String,
+    chars: Vec<char>,
     index: usize,
+}
+
+impl ElvenDigitsIterator {
+    pub fn new(s: &str) -> Self {
+        Self {
+            chars: s.chars().collect(),
+            index: 0,
+        }
+    }
 }
 
 impl Iterator for ElvenDigitsIterator {
     type Item = char;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while self.index < self.string.len() {
-            let s = &self.string[self.index..self.string.len()];
+        while self.index < self.chars.len() {
+            let remaining = &self.chars[self.index..self.chars.len()];
+
             self.index += 1;
 
-            match s.chars().next() {
-                Some(char) if char.is_digit(10) => return Some(char),
-                _ => {}
-            }
-
-            if s.starts_with("one") {
-                return Some('1');
-            } else if s.starts_with("two") {
-                return Some('2');
-            } else if s.starts_with("three") {
-                return Some('3');
-            } else if s.starts_with("four") {
-                return Some('4');
-            } else if s.starts_with("five") {
-                return Some('5');
-            } else if s.starts_with("six") {
-                return Some('6');
-            } else if s.starts_with("seven") {
-                return Some('7');
-            } else if s.starts_with("eight") {
-                return Some('8');
-            } else if s.starts_with("nine") {
-                return Some('9');
-            } else {
-                continue;
-            }
+            return match remaining {
+                ['o', 'n', 'e', ..] => Some('1'),
+                ['t', 'w', 'o', ..] => Some('2'),
+                ['t', 'h', 'r', 'e', 'e', ..] => Some('3'),
+                ['f', 'o', 'u', 'r', ..] => Some('4'),
+                ['f', 'i', 'v', 'e', ..] => Some('5'),
+                ['s', 'i', 'x', ..] => Some('6'),
+                ['s', 'e', 'v', 'e', 'n', ..] => Some('7'),
+                ['e', 'i', 'g', 'h', 't', ..] => Some('8'),
+                ['n', 'i', 'n', 'e', ..] => Some('9'),
+                [n, ..] if n.is_ascii_digit() => Some(*n),
+                _ => continue,
+            };
         }
         None
     }
@@ -101,13 +92,14 @@ fn test_part2() {
 
 #[test]
 fn test_iterator() {
-    let mut iter = ElvenDigitsIterator {
-        string: "eightwothree4".to_string(),
-        index: 0,
-    };
+    let mut iter = ElvenDigitsIterator::new("eightwone3sevenine4");
 
     assert_eq!(iter.next(), Some('8'));
     assert_eq!(iter.next(), Some('2'));
+    assert_eq!(iter.next(), Some('1'));
     assert_eq!(iter.next(), Some('3'));
+    assert_eq!(iter.next(), Some('7'));
+    assert_eq!(iter.next(), Some('9'));
     assert_eq!(iter.next(), Some('4'));
+    assert_eq!(iter.next(), None);
 }
