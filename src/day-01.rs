@@ -69,23 +69,27 @@ impl Iterator for ElvenDigitsIterator {
 
 #[test]
 fn test_part1() {
-    let input = "1abc2
+    let input = indoc::indoc! {"
+        1abc2
         pqr3stu8vwx
         a1b2c3d4e5f
-        treb7uchet";
+        treb7uchet
+    "};
 
     assert_eq!(part1(input), 142);
 }
 
 #[test]
 fn test_part2() {
-    let input = "two1nine
+    let input = indoc::indoc! {"
+        two1nine
         eightwothree
         abcone2threexyz
         xtwone3four
         4nineeightseven2
         zoneight234
-        7pqrstsixteen";
+        7pqrstsixteen
+    "};
 
     assert_eq!(part2(input), 281);
 }
